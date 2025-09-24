@@ -169,11 +169,40 @@ All errors include:
 - **Mobile browsers**: iOS Safari 14+, Chrome Mobile 90+
 - **JavaScript required**: No fallback for non-JS environments
 
+## Git Workflow
+
+### Useful Commands
+```bash
+# View current status
+git status
+
+# Add all changes
+git add .
+
+# Commit with conventional commit message
+git commit -m "feat: add new feature"
+git commit -m "fix: resolve login issue"  
+git commit -m "docs: update README"
+
+# View commit history
+git log --oneline
+
+# View files tracked by git
+git ls-files
+```
+
+### What's Excluded from Git
+- `node_modules/` - Dependencies (install with `npm install`)
+- `dist/` - Build outputs
+- `.env*` - Environment files
+- IDE and OS files (`.vscode/`, `.DS_Store`, etc.)
+- Logs and cache files
+
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
+2. Create a feature branch: `git checkout -b feat/feature-name`
+3. Make your changes following conventional commits
 4. Add tests if applicable
 5. Submit a pull request
 
