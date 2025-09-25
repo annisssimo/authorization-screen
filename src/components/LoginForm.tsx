@@ -1,66 +1,77 @@
-import React from 'react';
-import { Form, Input, Button, message } from 'antd';
-import { UserOutlined, LockOutlined, HomeOutlined } from '@ant-design/icons';
+import { useState } from 'react';
+import { Form, Input, message } from 'antd';
+import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useLogin } from '@/hooks/useAuth';
-import { getErrorMessage, cn } from '@/lib/utils';
+import { getErrorMessage } from '@/lib/utils';
+import { CompanyLogo } from './ui/CompanyLogo';
+import Button from '@/components/ui/Button';
 
 interface LoginFormProps {
   onSuccess: (requiresTwoFactor: boolean, tempToken?: string) => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
+const LoginForm = ({ onSuccess }: LoginFormProps) => {
   const [form] = Form.useForm();
   const loginMutation = useLogin();
+  const [hasMinimumInput, setHasMinimumInput] = useState(false);
+  const [validationEnabled, setValidationEnabled] = useState(false);
+
+  const handleFormChange = () => {
+    const values = form.getFieldsValue();
+    const hasValues =
+      values.email && values.password && values.password.length >= 8;
+    setHasMinimumInput(hasValues);
+  };
 
   const onFinish = async (values: { email: string; password: string }) => {
     try {
+      // Enable validation mode after first submit attempt
+      if (!validationEnabled) {
+        setValidationEnabled(true);
+      }
+
+      // Validate the form before submission
+      await form.validateFields();
+
       const result = await loginMutation.mutateAsync(values);
 
       if (result.success && result.data) {
         onSuccess(!!result.data.requiresTwoFactor, result.data.tempToken);
       } else if (result.error) {
+        // Show general errors only as toasts, not under fields
         message.error(getErrorMessage(result.error.code || 'UNKNOWN_ERROR'));
-
-        if (result.error.field) {
-          form.setFields([
-            {
-              name: result.error.field,
-              errors: [result.error.message],
-            },
-          ]);
-        }
       }
     } catch (error) {
+      // If validation fails, the error will contain field validation errors
+      // and the form will automatically show them
+      if (error && typeof error === 'object' && 'errorFields' in error) {
+        console.log('Validation failed:', error.errorFields);
+        return;
+      }
+
       console.error('Login error:', error);
       message.error('An unexpected error occurred');
     }
   };
 
   return (
-    <div className="w-full space-y-8">
-      <div className="text-center">
-        <div className="flex items-center justify-center gap-3 mb-8">
-          <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
-            <HomeOutlined className="text-white text-2xl" />
-          </div>
-          <h2 className="text-2xl font-semibold text-gray-900 m-0">Company</h2>
-        </div>
+    <div className="w-[440px] bg-white rounded-md shadow-lg p-8 pt-[52px] flex flex-col justify-center items-center gap-6">
+      <CompanyLogo />
 
-        <h1 className="text-2xl font-semibold text-gray-900 mb-4">
-          Sign in to your account to continue
-        </h1>
-        <p className="text-base text-gray-600">
-          Welcome back! Please enter your credentials
-        </p>
-      </div>
+      <h1 className="text-2xl font-semibold text-center">
+        Sign in to your account to <br />
+        continue
+      </h1>
 
       <Form
         form={form}
         name="login"
         onFinish={onFinish}
+        onFieldsChange={handleFormChange}
         autoComplete="off"
         layout="vertical"
         className="w-full flex flex-col gap-4"
+        validateTrigger={validationEnabled ? ['onChange'] : []}
       >
         <Form.Item
           name="email"
@@ -68,12 +79,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
             { required: true, message: 'Please input your email!' },
             { type: 'email', message: 'Please enter a valid email!' },
           ]}
+          validateTrigger={validationEnabled ? ['onChange'] : []}
         >
           <Input
+            size="large"
             prefix={<UserOutlined className="text-gray-400" />}
             placeholder="Email"
             disabled={loginMutation.isPending}
-            className={cn('h-[40px] rounded-xl text-base')}
           />
         </Form.Item>
 
@@ -83,25 +95,25 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
             { required: true, message: 'Please input your password!' },
             { min: 8, message: 'Password must be at least 8 characters!' },
           ]}
+          validateTrigger={validationEnabled ? ['onChange'] : []}
         >
           <Input.Password
+            size="large"
             prefix={<LockOutlined className="text-gray-400" />}
             placeholder="Password"
             disabled={loginMutation.isPending}
-            className={cn('h-[40px] rounded-xl text-base')}
+            visibilityToggle={false}
           />
         </Form.Item>
 
         <Form.Item className="mb-0">
           <Button
-            type="primary"
+            size="large"
             htmlType="submit"
             loading={loginMutation.isPending}
-            className={cn(
-              'w-full h-[40px] rounded-xl text-base font-medium',
-              'bg-blue-500 hover:bg-blue-600 border-blue-500 hover:border-blue-600',
-              'transition-colors duration-200'
-            )}
+            disabled={!hasMinimumInput || loginMutation.isPending}
+            variant="primary"
+            block
           >
             Log in
           </Button>

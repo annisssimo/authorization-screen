@@ -7,7 +7,6 @@ import {
 } from '@/types/auth';
 import { delay } from '@/lib/utils';
 
-// Mock database of users
 const MOCK_USERS = [
   {
     id: '1',
@@ -102,7 +101,6 @@ export async function loginUser(
       async () => {
         const { email, password } = credentials;
 
-        // Check for too many failed attempts
         const attempts = failedAttempts[email] || 0;
         const lastAttempt = lastAttemptTime[email] || 0;
         const timeSinceLastAttempt = Date.now() - lastAttempt;
@@ -115,10 +113,8 @@ export async function loginUser(
           );
         }
 
-        // Find user
         const user = MOCK_USERS.find((u) => u.email === email);
         if (!user) {
-          // Increment failed attempts
           failedAttempts[email] = attempts + 1;
           lastAttemptTime[email] = Date.now();
 
@@ -129,7 +125,6 @@ export async function loginUser(
           );
         }
 
-        // Check account status
         if (user.isLocked) {
           throw new AuthApiError(
             ErrorCode.ACCOUNT_LOCKED,
@@ -151,9 +146,7 @@ export async function loginUser(
           );
         }
 
-        // Check password
         if (user.password !== password) {
-          // Increment failed attempts
           failedAttempts[email] = attempts + 1;
           lastAttemptTime[email] = Date.now();
 
@@ -164,7 +157,6 @@ export async function loginUser(
           );
         }
 
-        // Reset failed attempts on successful login
         delete failedAttempts[email];
         delete lastAttemptTime[email];
 
@@ -176,7 +168,6 @@ export async function loginUser(
           twoFactorEnabled: user.twoFactorEnabled,
         };
 
-        // If 2FA is enabled, return temp token
         if (user.twoFactorEnabled) {
           return {
             success: true,
@@ -189,7 +180,6 @@ export async function loginUser(
           };
         }
 
-        // Regular login without 2FA
         return {
           success: true,
           data: {
@@ -253,7 +243,6 @@ export async function verifyTwoFactor(
           );
         }
 
-        // Check if code is valid
         if (!VALID_2FA_CODES.includes(twoFactorCode.code)) {
           throw new AuthApiError(
             ErrorCode.INVALID_2FA_CODE,
@@ -322,7 +311,6 @@ export async function requestNewTwoFactorCode(
   try {
     return await simulateApiCall(
       async () => {
-        // In a real app, this would send a new code via SMS/email
         await delay(500);
 
         return {

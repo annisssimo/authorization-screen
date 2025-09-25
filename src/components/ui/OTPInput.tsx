@@ -10,18 +10,17 @@ interface OTPInputProps {
   error?: boolean;
 }
 
-const OTPInput: React.FC<OTPInputProps> = ({ 
-  length, 
-  value, 
-  onChange, 
+const OTPInput = ({
+  length,
+  value,
+  onChange,
   disabled = false,
-  error = false 
-}) => {
+  error = false,
+}: OTPInputProps) => {
   const [otp, setOtp] = useState<string[]>(Array(length).fill(''));
-  const inputRefs = useRef<(any)[]>([]);
+  const inputRefs = useRef<any[]>([]);
 
   useEffect(() => {
-    // Update internal state when value prop changes
     const newOtp = value.split('').slice(0, length);
     while (newOtp.length < length) {
       newOtp.push('');
@@ -30,14 +29,13 @@ const OTPInput: React.FC<OTPInputProps> = ({
   }, [value, length]);
 
   const handleChange = (index: number, val: string) => {
-    if (!/^\d*$/.test(val)) return; // Only allow digits
+    if (!/^\d*$/.test(val)) return;
 
     const newOtp = [...otp];
     newOtp[index] = val;
     setOtp(newOtp);
     onChange(newOtp.join(''));
 
-    // Auto-focus next input
     if (val && index < length - 1) {
       inputRefs.current[index + 1]?.focus();
     }
@@ -48,10 +46,9 @@ const OTPInput: React.FC<OTPInputProps> = ({
       inputRefs.current[index - 1]?.focus();
     }
 
-    // Handle paste
     if (e.key === 'v' && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
-      navigator.clipboard.readText().then(text => {
+      navigator.clipboard.readText().then((text) => {
         const digits = text.replace(/\D/g, '').slice(0, length);
         if (digits.length > 0) {
           const newOtp = Array(length).fill('');
@@ -60,8 +57,7 @@ const OTPInput: React.FC<OTPInputProps> = ({
           }
           setOtp(newOtp);
           onChange(newOtp.join(''));
-          
-          // Focus the next empty field or last field
+
           const nextIndex = Math.min(digits.length, length - 1);
           inputRefs.current[nextIndex]?.focus();
         }
@@ -70,7 +66,7 @@ const OTPInput: React.FC<OTPInputProps> = ({
   };
 
   return (
-    <div className="flex gap-3 justify-center">
+    <div className="flex flex-row items-center gap-[10px] justify-center">
       {otp.map((digit, index) => (
         <Input
           key={index}
@@ -81,12 +77,18 @@ const OTPInput: React.FC<OTPInputProps> = ({
           maxLength={1}
           disabled={disabled}
           className={cn(
-            "w-14 h-14 text-center text-lg font-semibold rounded-xl",
-            "transition-colors duration-200",
-            error 
-              ? "border-red-400 focus:border-red-500 hover:border-red-500" 
-              : "border-gray-300 focus:border-blue-500 hover:border-blue-400",
-            disabled && "bg-gray-50"
+            'flex flex-row items-center justify-center gap-3',
+            'w-[52.67px] h-[60px]',
+            'px-[11px] py-0',
+            'text-center text-lg font-semibold',
+            'bg-white',
+            'rounded-[8px]',
+            'transition-colors duration-200',
+            error
+              ? '!border-red-500 focus:border-red-500 hover:border-red-500'
+              : 'border-[#D9D9D9] focus:border-blue-500 hover:border-blue-400',
+            disabled && 'bg-gray-50',
+            '!shadow-none focus:!shadow-none hover:!shadow-none'
           )}
           autoComplete="off"
         />

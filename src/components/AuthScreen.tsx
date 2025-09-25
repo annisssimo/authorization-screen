@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { AuthStep } from '@/types/auth';
 import { useAuthState } from '@/hooks/useAuth';
 import { LoginForm } from '@/components/LoginForm';
@@ -6,14 +6,13 @@ import { TwoFactorForm } from '@/components/TwoFactorForm';
 import { AuthSuccess } from '@/components/AuthSuccess';
 import { Spin } from 'antd';
 
-const AuthScreen: React.FC = () => {
+export const AuthScreen = () => {
   const [currentStep, setCurrentStep] = useState<AuthStep>(AuthStep.LOGIN);
   const [tempToken, setTempToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const authState = useAuthState();
 
-  // Initialize auth state on mount
   useEffect(() => {
     const initializeAuth = () => {
       if (authState.isAuthenticated) {
@@ -27,12 +26,14 @@ const AuthScreen: React.FC = () => {
       setIsLoading(false);
     };
 
-    // Small delay to prevent flash
     const timer = setTimeout(initializeAuth, 100);
     return () => clearTimeout(timer);
   }, [authState]);
 
-  const handleLoginSuccess = (requiresTwoFactor: boolean, tempTokenValue?: string) => {
+  const handleLoginSuccess = (
+    requiresTwoFactor: boolean,
+    tempTokenValue?: string
+  ) => {
     if (requiresTwoFactor && tempTokenValue) {
       setTempToken(tempTokenValue);
       setCurrentStep(AuthStep.TWO_FACTOR);
@@ -49,7 +50,6 @@ const AuthScreen: React.FC = () => {
   const handleBackToLogin = () => {
     setCurrentStep(AuthStep.LOGIN);
     setTempToken(null);
-    // Clear temp token from session storage
     sessionStorage.removeItem('tempToken');
   };
 
@@ -66,27 +66,21 @@ const AuthScreen: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      {/* Auth Forms Container - точные размеры как на фото */}
-      <div className="w-[440px] min-h-[372px] bg-white rounded-lg shadow-lg px-8 py-8 flex flex-col justify-center">
-        {currentStep === AuthStep.LOGIN && (
-          <LoginForm onSuccess={handleLoginSuccess} />
-        )}
-        
-        {currentStep === AuthStep.TWO_FACTOR && tempToken && (
-          <TwoFactorForm
-            tempToken={tempToken}
-            onSuccess={handleTwoFactorSuccess}
-            onBack={handleBackToLogin}
-          />
-        )}
-        
-        {currentStep === AuthStep.AUTHENTICATED && authState.user && (
-          <AuthSuccess user={authState.user} />
-        )}
-      </div>
+      {currentStep === AuthStep.LOGIN && (
+        <LoginForm onSuccess={handleLoginSuccess} />
+      )}
+
+      {currentStep === AuthStep.TWO_FACTOR && tempToken && (
+        <TwoFactorForm
+          tempToken={tempToken}
+          onSuccess={handleTwoFactorSuccess}
+          onBack={handleBackToLogin}
+        />
+      )}
+
+      {currentStep === AuthStep.AUTHENTICATED && authState.user && (
+        <AuthSuccess user={authState.user} />
+      )}
     </div>
   );
 };
-
-export { AuthScreen };
-

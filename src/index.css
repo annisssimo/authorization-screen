@@ -7,6 +7,23 @@
   @apply border-gray-300 focus:border-blue-500 hover:border-blue-400;
 }
 
+.ant-btn:disabled,
+.ant-btn[disabled] {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+  border-color: #d9d9d9 !important;
+  color: rgba(0, 0, 0, 0.25) !important;
+  cursor: not-allowed !important;
+}
+
+.ant-btn:disabled:hover,
+.ant-btn[disabled]:hover,
+.ant-btn:disabled:focus,
+.ant-btn[disabled]:focus {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+  border-color: #d9d9d9 !important;
+  color: rgba(0, 0, 0, 0.25) !important;
+}
+
 .ant-input:focus,
 .ant-input-focused {
   @apply border-blue-500 shadow-sm;
@@ -25,7 +42,6 @@
   @apply bg-blue-600 border-blue-600;
 }
 
-/* Form item margin overrides */
 .ant-form-item {
   margin-bottom: 0 !important;
 }
