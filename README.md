@@ -51,6 +51,5 @@ npm run build
 
 - React 18 + TypeScript
 - Tailwind CSS
-- React Hook Form
 - React Query
 - Ant Design
