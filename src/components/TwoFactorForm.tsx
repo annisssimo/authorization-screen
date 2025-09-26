@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { message } from 'antd';
+import { Input, message } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useTwoFactorVerification, useRequestNewCode } from '@/hooks/useAuth';
 import { getErrorMessage } from '@/lib/utils';
-import { OTPInput } from '@/components/ui/OTPInput';
 import { CompanyLogo } from './ui/CompanyLogo';
 import { Button } from '@/components/ui/Button';
 
@@ -90,7 +89,7 @@ export const TwoFactorForm = ({
   };
 
   return (
-    <div 
+    <div
       className="w-[440px] bg-white rounded-md shadow-lg p-8 pt-10 flex flex-col items-center"
       role="main"
       aria-labelledby="two-factor-title"
@@ -109,7 +108,7 @@ export const TwoFactorForm = ({
 
       <CompanyLogo />
       <div className=" my-6">
-        <h1 
+        <h1
           id="two-factor-title"
           className="text-center text-2xl font-semibold text-gray-900"
         >
@@ -126,20 +125,21 @@ export const TwoFactorForm = ({
         <div id="otp-label" className="sr-only">
           Enter 6-digit verification code
         </div>
-        <OTPInput
+        <Input.OTP
+          size="large"
           length={6}
           value={code}
           onChange={handleCodeChange}
           disabled={verifyMutation.isPending}
-          error={!!error}
-          aria-label="Verification code"
-          aria-describedby={error ? "otp-error" : "otp-instructions"}
+          formatter={(str) => str.replace(/\D/g, '')}
+          inputMode="numeric"
+          status={error ? 'error' : undefined}
         />
       </div>
 
       <div className="w-full">
         {error && (
-          <div 
+          <div
             id="otp-error"
             className="mt-2 mb-4 text-red-500 text-sm"
             role="alert"
@@ -163,17 +163,21 @@ export const TwoFactorForm = ({
             size="large"
             block
             className="font-light mt-4"
-            aria-describedby={error ? "otp-error" : undefined}
+            aria-describedby={error ? 'otp-error' : undefined}
           >
             {verifyMutation.isPending ? 'Verifying...' : 'Continue'}
           </Button>
         ) : (
           <div className="h-12 flex items-center justify-center">
             {!canResend ? (
-              <p 
+              <p
                 className="text-base text-gray-500"
                 aria-live="polite"
-                aria-label={`Get a new code in ${String(Math.floor(countdown / 60)).padStart(2, '0')} minutes and ${String(countdown % 60).padStart(2, '0')} seconds`}
+                aria-label={`Get a new code in ${String(
+                  Math.floor(countdown / 60)
+                ).padStart(2, '0')} minutes and ${String(
+                  countdown % 60
+                ).padStart(2, '0')} seconds`}
               >
                 Get a new code in{' '}
                 <span aria-hidden="true">
@@ -191,7 +195,9 @@ export const TwoFactorForm = ({
                 className="font-light mt-4"
                 aria-label="Request new verification code"
               >
-                {requestNewCodeMutation.isPending ? 'Sending...' : 'Get new code'}
+                {requestNewCodeMutation.isPending
+                  ? 'Sending...'
+                  : 'Get new code'}
               </Button>
             )}
           </div>

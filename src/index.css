@@ -178,6 +178,22 @@ select {
   }
 }
 
+/* Custom OTP Input - Large Size */
+div.ant-otp span.ant-otp-input-wrapper input.ant-otp-input,
+div.ant-otp input.ant-otp-input,
+.ant-otp .ant-otp-input-wrapper .ant-otp-input {
+  width: 52.67px;
+  height: 60px;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+div.ant-otp span.ant-otp-input-wrapper input.ant-otp-input,
+div.ant-otp input.ant-otp-input,
+.ant-otp {
+  gap: 12px !important;
+}
+
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   * {
