@@ -6,7 +6,7 @@ Modern authentication system with React, TypeScript, and Tailwind CSS.
 
 - Email/password login
 - Two-factor authentication (2FA)
-- Form validation with React Hook Form
+- Form validation with
 - Responsive design
 - Loading states and error handling
 
