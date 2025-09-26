@@ -224,7 +224,6 @@ export async function verifyTwoFactor(
   try {
     return await simulateApiCall(
       async () => {
-        // Extract user ID from temp token
         const tokenParts = tempToken.split('_');
         if (tokenParts.length < 2 || tokenParts[0] !== 'temp') {
           throw new AuthApiError(
@@ -243,19 +242,19 @@ export async function verifyTwoFactor(
           );
         }
 
-        if (!VALID_2FA_CODES.includes(twoFactorCode.code)) {
-          throw new AuthApiError(
-            ErrorCode.INVALID_2FA_CODE,
-            'Invalid verification code. Please try again.',
-            'code'
-          );
-        }
-
-        // Simulate expired code (codes ending in 1)
+        // Simulate expired code (codes ending in 1) - check this first
         if (twoFactorCode.code.endsWith('1')) {
           throw new AuthApiError(
             ErrorCode.EXPIRED_2FA_CODE,
             'Verification code has expired. Please request a new code.',
+            'code'
+          );
+        }
+
+        if (!VALID_2FA_CODES.includes(twoFactorCode.code)) {
+          throw new AuthApiError(
+            ErrorCode.INVALID_2FA_CODE,
+            'Invalid verification code. Please try again.',
             'code'
           );
         }

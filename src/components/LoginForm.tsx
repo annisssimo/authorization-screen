@@ -1,54 +1,61 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Form, Input, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useLogin } from '@/hooks/useAuth';
 import { getErrorMessage } from '@/lib/utils';
 import { CompanyLogo } from './ui/CompanyLogo';
-import Button from '@/components/ui/Button';
+import { Button } from '@/components/ui/Button';
+import { AsteriskPasswordInput } from './ui/AsteriskPasswordInput';
+import { debounce } from 'lodash';
 
 interface LoginFormProps {
   onSuccess: (requiresTwoFactor: boolean, tempToken?: string) => void;
 }
 
-const LoginForm = ({ onSuccess }: LoginFormProps) => {
+export const LoginForm = ({ onSuccess }: LoginFormProps) => {
   const [form] = Form.useForm();
   const loginMutation = useLogin();
-  const [hasMinimumInput, setHasMinimumInput] = useState(false);
-  const [validationEnabled, setValidationEnabled] = useState(false);
+  const [isFormValid, setIsFormValid] = useState(false);
 
+  // Debounced function to check form validity without triggering errors
+  const checkFormValidity = useCallback(
+    debounce(async () => {
+      try {
+        const values = form.getFieldsValue();
+        // Check if fields are filled and valid without triggering visible errors
+        if (values.email && values.password) {
+          await form.validateFields(['email', 'password']);
+          setIsFormValid(true);
+        } else {
+          setIsFormValid(false);
+        }
+      } catch {
+        setIsFormValid(false);
+      }
+    }, 300),
+    [form]
+  );
+
+  // Handle form field changes
   const handleFormChange = () => {
-    const values = form.getFieldsValue();
-    const hasValues =
-      values.email && values.password && values.password.length >= 8;
-    setHasMinimumInput(hasValues);
+    checkFormValidity();
   };
 
   const onFinish = async (values: { email: string; password: string }) => {
     try {
-      // Enable validation mode after first submit attempt
-      if (!validationEnabled) {
-        setValidationEnabled(true);
-      }
-
-      // Validate the form before submission
-      await form.validateFields();
-
+      await form.validateFields(); // Trigger validation on submit
       const result = await loginMutation.mutateAsync(values);
 
       if (result.success && result.data) {
         onSuccess(!!result.data.requiresTwoFactor, result.data.tempToken);
       } else if (result.error) {
-        // Show general errors only as toasts, not under fields
         message.error(getErrorMessage(result.error.code || 'UNKNOWN_ERROR'));
       }
     } catch (error) {
-      // If validation fails, the error will contain field validation errors
-      // and the form will automatically show them
       if (error && typeof error === 'object' && 'errorFields' in error) {
         console.log('Validation failed:', error.errorFields);
         return;
       }
-
       console.error('Login error:', error);
       message.error('An unexpected error occurred');
     }
@@ -71,7 +78,7 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
         autoComplete="off"
         layout="vertical"
         className="w-full flex flex-col gap-4"
-        validateTrigger={validationEnabled ? ['onChange'] : []}
+        validateTrigger={['onBlur', 'onSubmit']}
       >
         <Form.Item
           name="email"
@@ -79,7 +86,7 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
             { required: true, message: 'Please input your email!' },
             { type: 'email', message: 'Please enter a valid email!' },
           ]}
-          validateTrigger={validationEnabled ? ['onChange'] : []}
+          validateFirst
         >
           <Input
             size="large"
@@ -95,14 +102,17 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
             { required: true, message: 'Please input your password!' },
             { min: 8, message: 'Password must be at least 8 characters!' },
           ]}
-          validateTrigger={validationEnabled ? ['onChange'] : []}
+          validateFirst
         >
-          <Input.Password
+          <AsteriskPasswordInput
             size="large"
             prefix={<LockOutlined className="text-gray-400" />}
             placeholder="Password"
             disabled={loginMutation.isPending}
-            visibilityToggle={false}
+            onChange={(value) => {
+              form.setFieldsValue({ password: value });
+              handleFormChange();
+            }}
           />
         </Form.Item>
 
@@ -111,7 +121,7 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
             size="large"
             htmlType="submit"
             loading={loginMutation.isPending}
-            disabled={!hasMinimumInput || loginMutation.isPending}
+            disabled={!isFormValid || loginMutation.isPending}
             variant="primary"
             block
           >
@@ -122,5 +132,3 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
     </div>
   );
 };
-
-export { LoginForm };

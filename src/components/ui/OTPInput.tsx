@@ -10,7 +10,7 @@ interface OTPInputProps {
   error?: boolean;
 }
 
-const OTPInput = ({
+export const OTPInput = ({
   length,
   value,
   onChange,
@@ -96,5 +96,3 @@ const OTPInput = ({
     </div>
   );
 };
-
-export default OTPInput;

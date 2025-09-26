@@ -56,10 +56,6 @@ export enum ErrorCode {
   UNKNOWN_ERROR = 'UNKNOWN_ERROR'
 }
 
-export interface ValidationError {
-  field: string;
-  message: string;
-}
 
 export interface AuthState {
   user: AuthUser | null;

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Avatar } from 'antd';
 import {
   CheckCircleOutlined,
@@ -6,7 +5,7 @@ import {
   SettingOutlined,
   LogoutOutlined,
 } from '@ant-design/icons';
-import Button from '@/components/ui/Button';
+import { Button } from '@/components/ui/Button';
 import { AuthUser } from '@/types/auth';
 import { useLogout } from '@/hooks/useAuth';
 
@@ -14,7 +13,7 @@ interface AuthSuccessProps {
   user: AuthUser;
 }
 
-const AuthSuccess: React.FC<AuthSuccessProps> = ({ user }) => {
+export const AuthSuccess = ({ user }: AuthSuccessProps) => {
   const logoutMutation = useLogout();
 
   const handleLogout = () => {
@@ -72,22 +71,13 @@ const AuthSuccess: React.FC<AuthSuccessProps> = ({ user }) => {
         </div>
       </div>
 
-      {/* Account Actions */}
       <div className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
-          <Button
-            icon={<UserOutlined />}
-            variant="outline"
-            size="large"
-          >
+          <Button icon={<UserOutlined />} variant="outline" size="large">
             Profile
           </Button>
 
-          <Button
-            icon={<SettingOutlined />}
-            variant="outline"
-            size="large"
-          >
+          <Button icon={<SettingOutlined />} variant="outline" size="large">
             Settings
           </Button>
         </div>
@@ -104,7 +94,6 @@ const AuthSuccess: React.FC<AuthSuccessProps> = ({ user }) => {
         </Button>
       </div>
 
-      {/* Footer */}
       <div className="text-center pt-4 border-t border-gray-200">
         <p className="text-xs text-gray-500">
           Last sign in: {new Date().toLocaleString()}
@@ -113,5 +102,3 @@ const AuthSuccess: React.FC<AuthSuccessProps> = ({ user }) => {
     </div>
   );
 };
-
-export { AuthSuccess };

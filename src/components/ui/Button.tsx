@@ -15,7 +15,7 @@ interface ButtonProps {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 }
 
-const Button = ({
+export const Button = ({
   children,
   type = 'default',
   size = 'middle',
@@ -92,5 +92,3 @@ const Button = ({
     </AntButton>
   );
 };
-
-export default Button;

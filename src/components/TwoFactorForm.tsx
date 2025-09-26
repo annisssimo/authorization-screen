@@ -3,9 +3,9 @@ import { message } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useTwoFactorVerification, useRequestNewCode } from '@/hooks/useAuth';
 import { getErrorMessage } from '@/lib/utils';
-import OTPInput from '@/components/ui/OTPInput';
+import { OTPInput } from '@/components/ui/OTPInput';
 import { CompanyLogo } from './ui/CompanyLogo';
-import Button from '@/components/ui/Button';
+import { Button } from '@/components/ui/Button';
 
 interface TwoFactorFormProps {
   tempToken: string;
@@ -13,7 +13,7 @@ interface TwoFactorFormProps {
   onBack: () => void;
 }
 
-const TwoFactorForm = ({
+export const TwoFactorForm = ({
   tempToken,
   onSuccess,
   onBack,
@@ -165,5 +165,3 @@ const TwoFactorForm = ({
     </div>
   );
 };
-
-export { TwoFactorForm };
