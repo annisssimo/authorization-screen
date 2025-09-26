@@ -55,9 +55,14 @@ export const AuthScreen = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div 
+        className="min-h-screen bg-gray-100 flex items-center justify-center"
+        role="status"
+        aria-live="polite"
+        aria-label="Loading authentication"
+      >
         <div className="text-center">
-          <Spin size="large" className="mb-4" />
+          <Spin size="large" className="mb-4" aria-hidden="true" />
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
@@ -65,7 +70,11 @@ export const AuthScreen = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+    <div 
+      className="min-h-screen bg-gray-100 flex items-center justify-center p-4"
+      role="application"
+      aria-label="Authentication system"
+    >
       {currentStep === AuthStep.LOGIN && (
         <LoginForm onSuccess={handleLoginSuccess} />
       )}

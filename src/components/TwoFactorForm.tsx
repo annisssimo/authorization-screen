@@ -90,21 +90,29 @@ export const TwoFactorForm = ({
   };
 
   return (
-    <div className="w-[440px] bg-white rounded-md shadow-lg p-8 pt-10 flex flex-col items-center">
+    <div 
+      className="w-[440px] bg-white rounded-md shadow-lg p-8 pt-10 flex flex-col items-center"
+      role="main"
+      aria-labelledby="two-factor-title"
+    >
       <div className="w-full flex justify-start">
         <Button
           variant="ghost"
           onClick={onBack}
           disabled={verifyMutation.isPending}
           className="h-2 shadow-none !border-none hover:!border-none [&_.anticon]:!text-gray-600 [&_.anticon]:hover:!text-gray-600"
+          aria-label="Go back to login"
         >
-          <ArrowLeftOutlined />
+          <ArrowLeftOutlined aria-hidden="true" />
         </Button>
       </div>
 
       <CompanyLogo />
       <div className=" my-6">
-        <h1 className="text-center text-2xl font-semibold text-gray-900 ">
+        <h1 
+          id="two-factor-title"
+          className="text-center text-2xl font-semibold text-gray-900"
+        >
           Two-Factor Authentication
         </h1>
         <p className="text-center text-base text-gray-600 leading-relaxed">
@@ -114,16 +122,35 @@ export const TwoFactorForm = ({
         </p>
       </div>
 
-      <OTPInput
-        length={6}
-        value={code}
-        onChange={handleCodeChange}
-        disabled={verifyMutation.isPending}
-        error={!!error}
-      />
+      <div className="w-full" role="group" aria-labelledby="otp-label">
+        <div id="otp-label" className="sr-only">
+          Enter 6-digit verification code
+        </div>
+        <OTPInput
+          length={6}
+          value={code}
+          onChange={handleCodeChange}
+          disabled={verifyMutation.isPending}
+          error={!!error}
+          aria-label="Verification code"
+          aria-describedby={error ? "otp-error" : "otp-instructions"}
+        />
+      </div>
 
       <div className="w-full">
-        {error && <div className="mt-2 mb-4 text-red-500 text-sm">{error}</div>}
+        {error && (
+          <div 
+            id="otp-error"
+            className="mt-2 mb-4 text-red-500 text-sm"
+            role="alert"
+            aria-live="polite"
+          >
+            {error}
+          </div>
+        )}
+        <div id="otp-instructions" className="sr-only">
+          Enter all 6 digits to continue
+        </div>
       </div>
 
       <div className="text-center w-full">
@@ -136,16 +163,23 @@ export const TwoFactorForm = ({
             size="large"
             block
             className="font-light mt-4"
+            aria-describedby={error ? "otp-error" : undefined}
           >
-            Continue
+            {verifyMutation.isPending ? 'Verifying...' : 'Continue'}
           </Button>
         ) : (
           <div className="h-12 flex items-center justify-center">
             {!canResend ? (
-              <p className="text-base text-gray-500">
+              <p 
+                className="text-base text-gray-500"
+                aria-live="polite"
+                aria-label={`Get a new code in ${String(Math.floor(countdown / 60)).padStart(2, '0')} minutes and ${String(countdown % 60).padStart(2, '0')} seconds`}
+              >
                 Get a new code in{' '}
-                {String(Math.floor(countdown / 60)).padStart(2, '0')}:
-                {String(countdown % 60).padStart(2, '0')}
+                <span aria-hidden="true">
+                  {String(Math.floor(countdown / 60)).padStart(2, '0')}:
+                  {String(countdown % 60).padStart(2, '0')}
+                </span>
               </p>
             ) : (
               <Button
@@ -155,8 +189,9 @@ export const TwoFactorForm = ({
                 size="large"
                 block
                 className="font-light mt-4"
+                aria-label="Request new verification code"
               >
-                Get new
+                {requestNewCodeMutation.isPending ? 'Sending...' : 'Get new code'}
               </Button>
             )}
           </div>

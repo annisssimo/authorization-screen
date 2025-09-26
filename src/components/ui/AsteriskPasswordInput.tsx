@@ -144,6 +144,11 @@ export function AsteriskPasswordInput({
       onCompositionStart={handleCompositionStart}
       onCompositionEnd={handleCompositionEnd}
       className={className}
+      autoComplete="current-password"
+      inputMode="text"
+      role="textbox"
+      aria-autocomplete="none"
+      aria-invalid={false}
     />
   );
 }

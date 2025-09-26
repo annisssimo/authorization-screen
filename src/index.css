@@ -161,3 +161,28 @@ select {
 .success {
   @apply border-green-300 focus:border-green-500 focus:ring-green-500;
 }
+
+/* Focus management */
+.focus-trap {
+  outline: none;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .ant-input {
+    @apply border-2;
+  }
+
+  .ant-btn {
+    @apply border-2;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

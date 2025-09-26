@@ -8,6 +8,8 @@ interface OTPInputProps {
   onChange: (value: string) => void;
   disabled?: boolean;
   error?: boolean;
+  'aria-label'?: string;
+  'aria-describedby'?: string;
 }
 
 export const OTPInput = ({
@@ -16,6 +18,8 @@ export const OTPInput = ({
   onChange,
   disabled = false,
   error = false,
+  'aria-label': ariaLabel,
+  'aria-describedby': ariaDescribedby,
 }: OTPInputProps) => {
   const [otp, setOtp] = useState<string[]>(Array(length).fill(''));
   const inputRefs = useRef<any[]>([]);
@@ -42,10 +46,35 @@ export const OTPInput = ({
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+    // Handle backspace navigation
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      e.preventDefault();
       inputRefs.current[index - 1]?.focus();
     }
 
+    // Handle arrow key navigation
+    if (e.key === 'ArrowLeft' && index > 0) {
+      e.preventDefault();
+      inputRefs.current[index - 1]?.focus();
+    }
+    
+    if (e.key === 'ArrowRight' && index < length - 1) {
+      e.preventDefault();
+      inputRefs.current[index + 1]?.focus();
+    }
+
+    // Handle home/end keys
+    if (e.key === 'Home') {
+      e.preventDefault();
+      inputRefs.current[0]?.focus();
+    }
+    
+    if (e.key === 'End') {
+      e.preventDefault();
+      inputRefs.current[length - 1]?.focus();
+    }
+
+    // Handle paste with Ctrl+V or Cmd+V
     if (e.key === 'v' && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
       navigator.clipboard.readText().then((text) => {
@@ -63,10 +92,24 @@ export const OTPInput = ({
         }
       });
     }
+
+    // Handle delete key
+    if (e.key === 'Delete' && otp[index]) {
+      e.preventDefault();
+      const newOtp = [...otp];
+      newOtp[index] = '';
+      setOtp(newOtp);
+      onChange(newOtp.join(''));
+    }
   };
 
   return (
-    <div className="flex flex-row items-center gap-[10px] justify-center">
+    <div 
+      className="flex flex-row items-center gap-[10px] justify-center"
+      role="group"
+      aria-label={ariaLabel || `Enter ${length}-digit verification code`}
+      aria-describedby={ariaDescribedby}
+    >
       {otp.map((digit, index) => (
         <Input
           key={index}
@@ -91,6 +134,12 @@ export const OTPInput = ({
             '!shadow-none focus:!shadow-none hover:!shadow-none'
           )}
           autoComplete="off"
+          aria-label={`Digit ${index + 1} of ${length}`}
+          aria-required="true"
+          inputMode="numeric"
+          pattern="[0-9]"
+          role="textbox"
+          tabIndex={disabled ? -1 : 0}
         />
       ))}
     </div>

@@ -17,12 +17,10 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
   const loginMutation = useLogin();
   const [isFormValid, setIsFormValid] = useState(false);
 
-  // Debounced function to check form validity without triggering errors
   const checkFormValidity = useCallback(
     debounce(async () => {
       try {
         const values = form.getFieldsValue();
-        // Check if fields are filled and valid without triggering visible errors
         if (values.email && values.password) {
           await form.validateFields(['email', 'password']);
           setIsFormValid(true);
@@ -36,14 +34,13 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
     [form]
   );
 
-  // Handle form field changes
   const handleFormChange = () => {
     checkFormValidity();
   };
 
   const onFinish = async (values: { email: string; password: string }) => {
     try {
-      await form.validateFields(); // Trigger validation on submit
+      await form.validateFields();
       const result = await loginMutation.mutateAsync(values);
 
       if (result.success && result.data) {
@@ -62,10 +59,14 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
   };
 
   return (
-    <div className="w-[440px] bg-white rounded-md shadow-lg p-8 pt-[52px] flex flex-col justify-center items-center gap-6">
+    <div
+      className="w-[440px] bg-white rounded-md shadow-lg p-8 pt-[52px] flex flex-col justify-center items-center gap-6"
+      role="main"
+      aria-labelledby="login-title"
+    >
       <CompanyLogo />
 
-      <h1 className="text-2xl font-semibold text-center">
+      <h1 id="login-title" className="text-2xl font-semibold text-center">
         Sign in to your account to <br />
         continue
       </h1>
@@ -79,6 +80,8 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
         layout="vertical"
         className="w-full flex flex-col gap-4"
         validateTrigger={['onBlur', 'onSubmit']}
+        role="form"
+        aria-label="Login form"
       >
         <Form.Item
           name="email"
@@ -90,9 +93,16 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
         >
           <Input
             size="large"
-            prefix={<UserOutlined className="text-gray-400" />}
+            prefix={
+              <UserOutlined className="text-gray-400" aria-hidden="true" />
+            }
             placeholder="Email"
             disabled={loginMutation.isPending}
+            aria-label="Email address"
+            aria-required={true}
+            aria-describedby="email-error"
+            autoComplete="email"
+            inputMode="email"
           />
         </Form.Item>
 
@@ -106,9 +116,15 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
         >
           <AsteriskPasswordInput
             size="large"
-            prefix={<LockOutlined className="text-gray-400" />}
+            prefix={
+              <LockOutlined className="text-gray-400" aria-hidden="true" />
+            }
             placeholder="Password"
             disabled={loginMutation.isPending}
+            aria-label="Password"
+            aria-required={true}
+            aria-describedby="password-error"
+            autoComplete="current-password"
             onChange={(value) => {
               form.setFieldsValue({ password: value });
               handleFormChange();
@@ -124,10 +140,23 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
             disabled={!isFormValid || loginMutation.isPending}
             variant="primary"
             block
+            aria-describedby={
+              !isFormValid ? 'form-validation-message' : undefined
+            }
           >
             Log in
           </Button>
         </Form.Item>
+
+        {!isFormValid && (
+          <div
+            id="form-validation-message"
+            className="sr-only"
+            aria-live="polite"
+          >
+            Please fill in all required fields to continue
+          </div>
+        )}
       </Form>
     </div>
   );
