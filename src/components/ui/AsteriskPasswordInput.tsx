@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Input } from 'antd';
 import type { InputProps } from 'antd';
 
@@ -31,38 +31,20 @@ export function AsteriskPasswordInput({
     onChange?.(realValue);
   }, [realValue, onChange]);
 
-  useLayoutEffect(() => {
-    const el = inputRef.current;
-    if (!el) return;
-    if (pendingSelection.current != null) {
-      try {
-        el.setSelectionRange(
-          pendingSelection.current,
-          pendingSelection.current
-        );
-      } catch (e) {}
-      pendingSelection.current = null;
-    }
-  }, [realValue]);
-
   const updateReal = (next: string, caret?: number) => {
     setRealValue(next);
     if (typeof caret === 'number') pendingSelection.current = caret;
   };
 
   const handleBeforeInput = (e: React.FormEvent<HTMLInputElement>) => {
-    if (composing.current) return;
-
-    const ev = e.nativeEvent as InputEvent;
-    const el = e.currentTarget as HTMLInputElement;
+    const ev = e.nativeEvent;
+    const el = e.currentTarget;
     const start = el.selectionStart ?? realValue.length;
     const end = el.selectionEnd ?? start;
     const data = (ev as any).data ?? '';
 
     const next = realValue.slice(0, start) + data + realValue.slice(end);
     updateReal(next, start + (data ? data.length : 0));
-
-    e.preventDefault();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -92,44 +74,6 @@ export function AsteriskPasswordInput({
     }
   };
 
-  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    const pasted = e.clipboardData.getData('text');
-    const el = e.currentTarget;
-    const start = el.selectionStart ?? realValue.length;
-    const end = el.selectionEnd ?? start;
-    const next = realValue.slice(0, start) + pasted + realValue.slice(end);
-    updateReal(next, start + pasted.length);
-  };
-
-  const handleCut = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    const el = e.currentTarget;
-    const start = el.selectionStart ?? 0;
-    const end = el.selectionEnd ?? start;
-    const cutText = realValue.slice(start, end);
-    e.clipboardData.setData('text/plain', cutText);
-    const next = realValue.slice(0, start) + realValue.slice(end);
-    updateReal(next, start);
-  };
-
-  const handleCompositionStart = () => {
-    composing.current = true;
-  };
-  const handleCompositionEnd = (
-    e: React.CompositionEvent<HTMLInputElement>
-  ) => {
-    composing.current = false;
-
-    const el = e.currentTarget;
-    const data = e.data ?? '';
-    const start = el.selectionStart ?? realValue.length;
-    const end = el.selectionEnd ?? start;
-    const next =
-      realValue.slice(0, start - data.length) + data + realValue.slice(end);
-    updateReal(next, start);
-  };
-
   const displayValue = '*'.repeat(realValue.length);
 
   return (
@@ -139,10 +83,6 @@ export function AsteriskPasswordInput({
       value={displayValue}
       onBeforeInput={handleBeforeInput as any}
       onKeyDown={handleKeyDown}
-      onPaste={handlePaste}
-      onCut={handleCut}
-      onCompositionStart={handleCompositionStart}
-      onCompositionEnd={handleCompositionEnd}
       className={className}
       autoComplete="current-password"
       inputMode="text"
